@@ -37,29 +37,37 @@ def start_bishops_process(size):
 
 
 def do_testing(n_from, n_to):
+    def t_queens():
+        for future in concurrent.futures.as_completed(queens_futures):
+            result_queens, size = future.result()
+            queens_avg = statistics.mean(result_queens)
+            mean_queens[size] = queens_avg
+
+            pbar.update(1)
+
+    def t_bishops():
+        for future in concurrent.futures.as_completed(bishops_futures):
+            result_bishops, size = future.result()
+            bishops_avg = statistics.mean(result_bishops)
+            mean_bishops[size] = bishops_avg
+
+            pbar.update(1)
+
     with tqdm(total=((n_to - n_from + 1) * 2)) as pbar:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             mean_bishops = {}
             mean_queens = {}
 
-            queens_futures = {executor.submit(
-                start_queens_process, i): i for i in range(n_from, n_to + 1)}
-            bishops_futures = {executor.submit(
-                start_bishops_process, i): i for i in range(n_from, n_to + 1)}
+            queens_futures = [executor.submit(
+                start_queens_process, i) for i in range(n_from, n_to + 1)]
+            bishops_futures = [executor.submit(
+                start_bishops_process, i) for i in range(n_from, n_to + 1)]
 
-            for future in concurrent.futures.as_completed(queens_futures):
-                result_queens, size = future.result()
-                queens_avg = statistics.mean(result_queens)
-                mean_queens[size] = queens_avg
+            queens_thread = threading.Thread(target=t_queens)
+            bishops_thread = threading.Thread(target=t_bishops)
 
-                pbar.update(1)
-
-            for future in concurrent.futures.as_completed(queens_futures):
-                result_bishops, size = future.result()
-                bishops_avg = statistics.mean(result_bishops)
-                mean_bishops[size] = bishops_avg
-
-                pbar.update(1)
+            queens_thread.start()
+            bishops_thread.start()
 
     print('\n')
 
