@@ -1,4 +1,3 @@
-import concurrent.futures
 from tqdm import tqdm
 import statistics
 
@@ -9,10 +8,10 @@ from queens import Queens
 def find_queens(n_from, n_to):
     avg = []
     for j in tqdm(range(n_from, n_to + 1), desc='Valdoves'):
-        queens = Queens(j)
+        queens_class = Queens(j)
         results = []
         for i in range(100):
-            result = queens.solve()
+            result = queens_class.solve()
             results.append(result)
 
         avg.append(statistics.mean(results))
@@ -23,10 +22,10 @@ def find_queens(n_from, n_to):
 def find_bishops(n_from, n_to):
     avg = []
     for j in tqdm(range(n_from, n_to + 1), desc='Rikiai'):
-        bishops = Bishops(j)
+        bishops_class = Bishops(j)
         results = []
         for i in range(100):
-            result = bishops.solve()
+            result = bishops_class.solve()
             results.append(result)
 
         avg.append(statistics.mean(results))
